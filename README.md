@@ -3,6 +3,8 @@
 Maintains `A+ Content Master.xlsx` and produces `A+ Content Source(ForWeb).csv` for the
 [ASUS Business Product Spec Search](https://asus-commercial.github.io/AplusContent/) site.
 
+**Demo:** [the tool](https://ambar-ads.github.io/aplus-content-bridge/) · [the A+ Content page](https://ambar-ads.github.io/aplus-content-bridge/site/)
+
 Everything runs in the browser. No server, no database, no upload — the Excel files you pick are
 read locally and never leave your machine.
 
