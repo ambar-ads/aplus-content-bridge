@@ -1,0 +1,399 @@
+/* Palet mengikuti ASUS Business: biru tautan halaman lama (#0072c6) di atas latar abu terang. */
+:root {
+  --bg: #f4f6f8;
+  --surface: #ffffff;
+  --border: #e3e7ec;
+  --text: #24292f;
+  --muted: #6b7684;
+  --accent: #0072c6;
+  --accent-dark: #005fa3;
+  --ok: #1a7f37;
+  --ok-bg: #eaf6ec;
+  --warn: #9a6700;
+  --warn-bg: #fff8e5;
+  --danger: #b42318;
+  --danger-bg: #fdeceb;
+  --radius: 8px;
+}
+
+* { box-sizing: border-box; }
+
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--text);
+  font: 14px/1.55 -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif;
+}
+
+.wrap { max-width: 1060px; margin: 0 auto; padding: 32px 20px 72px; }
+
+header.app { margin-bottom: 24px; }
+header.app h1 { margin: 0 0 4px; font-size: 22px; letter-spacing: -0.01em; }
+header.app p { margin: 0; color: var(--muted); }
+
+.card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 20px;
+  margin-bottom: 16px;
+}
+.card > h2 {
+  margin: 0 0 4px;
+  font-size: 15px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.card > h2 .step {
+  flex: none;
+  width: 22px; height: 22px;
+  border-radius: 50%;
+  background: var(--accent);
+  color: #fff;
+  font-size: 12px;
+  display: grid;
+  place-items: center;
+}
+.card > h2 .step.done { background: var(--ok); }
+.card > p.hint { margin: 0 0 14px 30px; color: var(--muted); font-size: 13px; }
+.card .body { margin-left: 30px; }
+
+.drop {
+  border: 1.5px dashed var(--border);
+  border-radius: var(--radius);
+  padding: 18px;
+  text-align: center;
+  cursor: pointer;
+  background: #fbfcfd;
+  transition: border-color .15s, background .15s;
+}
+.drop:hover, .drop.over { border-color: var(--accent); background: #f2f8fd; }
+.drop input { display: none; }
+.drop .file { font-weight: 600; color: var(--text); }
+.drop .sub { color: var(--muted); font-size: 12.5px; margin-top: 2px; }
+
+button {
+  font: inherit;
+  border: none;
+  border-radius: 6px;
+  padding: 9px 16px;
+  background: var(--accent);
+  color: #fff;
+  font-weight: 600;
+  cursor: pointer;
+}
+button:hover:not(:disabled) { background: var(--accent-dark); }
+button:disabled { background: #c9d1d9; cursor: not-allowed; }
+button.ghost { background: transparent; color: var(--accent); border: 1px solid var(--border); }
+button.ghost:hover:not(:disabled) { background: #f2f8fd; color: var(--accent-dark); }
+
+.row { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; }
+
+.stats { display: flex; gap: 10px; flex-wrap: wrap; margin: 12px 0 0; }
+.stat {
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  padding: 9px 14px;
+  min-width: 108px;
+  background: #fbfcfd;
+}
+.stat .n { font-size: 19px; font-weight: 700; line-height: 1.2; }
+.stat .k { color: var(--muted); font-size: 12px; }
+.stat.ok .n { color: var(--ok); }
+.stat.warn .n { color: var(--warn); }
+.stat.danger .n { color: var(--danger); }
+
+.note {
+  border-radius: 6px;
+  padding: 10px 13px;
+  font-size: 13px;
+  margin: 12px 0 0;
+  border-left: 3px solid;
+}
+.note.ok { background: var(--ok-bg); border-color: var(--ok); }
+.note.warn { background: var(--warn-bg); border-color: var(--warn); }
+.note.danger { background: var(--danger-bg); border-color: var(--danger); }
+.note ul { margin: 6px 0 0; padding-left: 18px; }
+.note li { margin: 2px 0; }
+
+details { margin-top: 12px; }
+details > summary {
+  cursor: pointer;
+  color: var(--accent);
+  font-size: 13px;
+  font-weight: 600;
+  user-select: none;
+}
+details > summary:hover { color: var(--accent-dark); }
+
+table { border-collapse: collapse; width: 100%; font-size: 13px; margin-top: 10px; }
+th, td { text-align: left; padding: 6px 10px; border-bottom: 1px solid var(--border); vertical-align: top; }
+th { color: var(--muted); font-weight: 600; font-size: 12px; text-transform: uppercase; letter-spacing: .03em; }
+td.mono, th.mono { font-family: ui-monospace, 'Cascadia Mono', Consolas, monospace; font-size: 12.5px; }
+.scroll { max-height: 290px; overflow: auto; margin-top: 10px; border: 1px solid var(--border); border-radius: 6px; }
+.scroll table { margin: 0; }
+.scroll th { position: sticky; top: 0; background: var(--surface); box-shadow: inset 0 -1px 0 var(--border); }
+
+code.inline {
+  background: #eef1f4;
+  padding: 1.5px 5px;
+  border-radius: 4px;
+  font-family: ui-monospace, 'Cascadia Mono', Consolas, monospace;
+  font-size: 12.5px;
+}
+
+ol.steps { margin: 8px 0 0; padding-left: 20px; font-size: 13px; }
+ol.steps li { margin: 4px 0; }
+
+.spinner {
+  display: inline-block;
+  width: 13px; height: 13px;
+  border: 2px solid rgba(255, 255, 255, .4);
+  border-top-color: #fff;
+  border-radius: 50%;
+  animation: spin .7s linear infinite;
+  vertical-align: -2px;
+  margin-right: 7px;
+}
+@keyframes spin { to { transform: rotate(360deg); } }
+
+@media (max-width: 620px) {
+  .wrap { padding: 20px 14px 56px; }
+  .card { padding: 16px; }
+  .card > p.hint, .card .body { margin-left: 0; }
+}
+
+/* ── Editor: toolbar + spreadsheet grid ─────────────────────────── */
+
+.editor-shell { display: flex; flex-direction: column; min-height: 0; }
+
+/* Inside the pop-out window the grid should fill the screen, not a fixed box. */
+.editor-window { padding: 0; }
+.editor-shell.in-window { height: 100vh; padding: 0; }
+
+.window-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  flex-wrap: wrap;
+  padding: 12px 18px;
+  border-bottom: 1px solid var(--border);
+  background: var(--surface);
+}
+.window-head strong { display: block; font-size: 14px; }
+.window-sub { color: var(--muted); font-size: 12.5px; }
+
+.editor-shell.in-window .editor-bar { padding: 12px 18px 0; }
+.editor-shell.in-window .grid-scroll { flex: 1; min-height: 0; border-radius: 0; border-left: none; border-right: none; }
+.editor-shell.in-window .editor-foot { padding: 0 18px 14px; }
+
+.editor-bar { display: flex; flex-direction: column; gap: 9px; margin-bottom: 11px; }
+.bar-line { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; }
+.bar-line .editor-search { flex: 1; min-width: 210px; }
+.bar-actions { display: flex; gap: 7px; flex-wrap: wrap; margin-left: auto; }
+
+.editor-search {
+  font: inherit;
+  padding: 8px 11px;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  background: var(--surface);
+  color: var(--text);
+}
+.editor-search:focus-visible { outline: 2px solid var(--accent); outline-offset: 1px; }
+
+.chips { display: flex; gap: 6px; flex-wrap: wrap; }
+
+.chip {
+  background: var(--surface);
+  color: var(--muted);
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  padding: 5px 11px;
+  font-size: 12.5px;
+  font-weight: 500;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+.chip:hover:not(:disabled) { background: #f2f8fd; color: var(--accent); border-color: var(--accent); }
+.chip.on { background: var(--accent); border-color: var(--accent); color: #fff; }
+.chip-n { font-family: ui-monospace, 'Cascadia Mono', Consolas, monospace; font-size: 11px; opacity: .75; }
+
+button.small { padding: 5px 11px; font-size: 12.5px; }
+
+/* ── The grid itself ────────────────────────────────────────────── */
+
+.grid-scroll {
+  height: 560px;
+  overflow: auto;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  background: var(--surface);
+  /* Keeps the sticky header from shimmering while the windowed rows swap in. */
+  will-change: transform;
+}
+
+table.grid {
+  border-collapse: separate;
+  border-spacing: 0;
+  table-layout: fixed;
+  margin: 0;
+  font-size: 12.5px;
+}
+
+table.grid th, table.grid td {
+  border-bottom: 1px solid var(--border);
+  border-right: 1px solid var(--border);
+  padding: 0 8px;
+  height: 30px;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  vertical-align: middle;
+  text-align: left;
+}
+
+table.grid thead th {
+  position: sticky;
+  top: 0;
+  z-index: 3;
+  background: #eef2f6;
+  color: var(--text);
+  font-weight: 600;
+  font-size: 11px;
+  letter-spacing: .02em;
+  text-transform: none;
+  border-bottom: 1.5px solid var(--border);
+}
+
+/* 90PN stays visible while the other 23 columns scroll past it. */
+table.grid .sticky-col {
+  position: sticky;
+  left: 0;
+  z-index: 2;
+  background: #f7f9fb;
+  font-family: ui-monospace, 'Cascadia Mono', Consolas, monospace;
+  font-size: 11.5px;
+  font-weight: 500;
+  border-right: 1.5px solid var(--border);
+}
+table.grid thead .sticky-col { z-index: 4; background: #e7ecf1; }
+
+table.grid tbody tr:hover td { background: #f7fafd; }
+table.grid tbody tr:hover .sticky-col { background: #eef4f9; }
+
+table.grid td.cell { cursor: text; color: var(--text); }
+table.grid td.cell:empty::after { content: '—'; color: #c2cad3; }
+table.grid td.cell:focus-visible { outline: 2px solid var(--accent); outline-offset: -2px; }
+table.grid td.cell.changed { background: #eaf4fd; box-shadow: inset 2px 0 0 var(--accent); }
+table.grid td.cell.flag { background: #fffaef; }
+table.grid td.cell.flag:empty::after { color: var(--warn); }
+
+table.grid td.editing { padding: 0; position: relative; overflow: visible; z-index: 5; }
+table.grid td.editing input,
+table.grid td.editing textarea {
+  font: inherit;
+  font-size: 12.5px;
+  width: 100%;
+  border: 2px solid var(--accent);
+  border-radius: 3px;
+  padding: 4px 6px;
+  background: var(--surface);
+  color: var(--text);
+  outline: none;
+}
+table.grid td.editing textarea {
+  position: absolute;
+  top: 0; left: 0;
+  min-width: 300px;
+  min-height: 110px;
+  resize: both;
+  line-height: 1.5;
+  box-shadow: 0 6px 18px rgba(0, 0, 0, .14);
+}
+
+table.grid td.empty {
+  text-align: center;
+  color: var(--muted);
+  font-style: italic;
+  padding: 22px 0;
+  white-space: normal;
+}
+
+.dot {
+  display: inline-block;
+  width: 6px; height: 6px;
+  border-radius: 50%;
+  background: transparent;
+  margin-right: 6px;
+  vertical-align: 1px;
+}
+.dot.changed { background: var(--accent); }
+.dot.new { background: var(--ok); }
+
+.editor-foot { color: var(--muted); font-size: 12.5px; margin: 9px 0 0; }
+
+@media (max-width: 620px) {
+  .bar-actions { margin-left: 0; }
+  .grid-scroll { height: 420px; }
+}
+
+/* ── Sortable headings and the per-column filter row ────────────── */
+
+table.grid thead .head-row th { padding: 0; height: 28px; }
+
+.sort-btn {
+  all: unset;
+  box-sizing: border-box;
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  width: 100%;
+  height: 100%;
+  padding: 0 8px;
+  cursor: pointer;
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--text);
+}
+.sort-btn:hover { background: #e2e9f0; }
+.sort-btn:focus-visible { outline: 2px solid var(--accent); outline-offset: -2px; }
+.sort-label { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.sort-mark { margin-left: auto; font-size: 8.5px; color: var(--accent); }
+
+table.grid thead .filter-row th {
+  top: 28px;
+  height: 27px;
+  padding: 0 3px;
+  background: #f4f7fa;
+  border-bottom: 1.5px solid var(--border);
+}
+table.grid thead .filter-row .sticky-col { background: #eef3f8; }
+
+.filter-th input {
+  font: inherit;
+  font-size: 11.5px;
+  width: 100%;
+  height: 21px;
+  padding: 0 5px;
+  border: 1px solid var(--border);
+  border-radius: 3px;
+  background: var(--surface);
+  color: var(--text);
+}
+.filter-th input::placeholder { color: #aab4be; }
+.filter-th input.on { border-color: var(--accent); background: #eaf4fd; font-weight: 500; }
+.filter-th input:focus-visible { outline: 2px solid var(--accent); outline-offset: -1px; }
+
+/* Fallback for browsers that refuse window.open: the same editor, over the page. */
+.editor-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 100;
+  background: var(--bg);
+  overflow: hidden;
+}
+.editor-overlay .editor-shell.in-window { height: 100vh; }

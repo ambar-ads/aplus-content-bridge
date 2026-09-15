@@ -1,0 +1,206 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>ASUS Business Product Spec Search</title>
+  <style>
+    body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif; background: #f4f6f8; margin:0; padding:2rem; color:#333; }
+    .container { max-width:800px; margin:0 auto; }
+    .header { text-align: center; }
+    .logo { max-width:200px; margin:0 auto 1rem; display:block; }
+    h1 { margin:0 0 .5rem; font-size:2rem; text-transform:uppercase; }
+    .subtitle { margin:0 0 1.5rem; font-size:.875rem; color:#666; }
+
+    .search-container { position:relative; max-width:600px; margin:0 auto 1rem; }
+    #search { width:100%; padding:.75rem 1rem; font-size:1rem; border:1px solid #ccc; border-radius:4px; }
+    #clearBtn { position:absolute; right:.5rem; top:50%; transform:translateY(-50%); background:none; border:none; font-size:1.25rem; color:#888; cursor:pointer; display:none; }
+    #clearBtn:hover { color:#555; }
+    .message { text-align:center; color:#777; margin:1rem 0; font-style:italic; }
+
+    .section { background:#fff; border-radius:8px; box-shadow:0 2px 8px rgba(0,0,0,0.1); padding:1rem; margin-top:1rem; }
+    .section h2 { margin:0 0 .5rem; font-size:1.25rem; user-select:none; }
+    .note { background:#fffae6; padding:.75rem 1rem; border-left:4px solid #f0c674; color:#333; font-weight:600; margin:0 0 1rem; user-select:none; }
+    .line { margin:0.25rem 0; }
+    .label { font-weight:600; user-select:none; }
+    .value { user-select:text; margin-left:0.5rem; }
+    .button { display:inline-block; background:#0072c6; color:#fff; text-decoration:none; font-weight:600; padding:.5rem 1rem; border-radius:4px; transition:background 0.2s; cursor:pointer; border:none; }
+    .button:hover { background:#005fa3; }
+    .tutor-box img { width:100%; height:auto; cursor:zoom-in; display:block; border-radius:4px; margin-top:1rem; }
+    .modal { display:none; position:fixed; z-index:1000; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.8); align-items:center; justify-content:center; }
+    .modal img { max-width:90%; max-height:90%; border-radius:4px; }
+    .modal-close { position:absolute; top:1rem; right:1rem; font-size:2rem; color:#fff; cursor:pointer; }
+    .retryBtn { display:block; margin:1.5rem auto 0; padding:.5rem 1rem; border:none; border-radius:4px; background:#0072c6; color:#fff; cursor:pointer; }
+    .retryBtn:hover { background:#005fa3; }
+    .copy-btn { position:absolute; top:.5rem; right:.5rem; background:#0072c6; color:#fff; border:none; padding:.25rem .5rem; border-radius:4px; cursor:pointer; }
+    .copy-btn:hover { background:#005fa3; }
+    #info-spec { position:relative; padding-top:2rem; }
+    .toast { position:fixed; bottom:1rem; left:50%; transform:translateX(-50%); background:rgba(0,0,0,0.7); color:#fff; padding:.5rem 1rem; border-radius:4px; opacity:0; transition:opacity .3s; }
+    .toast.show { opacity:1; }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="header">
+      <img src="asus-logo.png" class="logo" alt="ASUS Business Product Spec Search">
+      <h1>ASUS Business Product Spec Search</h1>
+      <p class="subtitle">Copyright © ASUS Indonesia Commercial Department</p>
+    </div>
+    <div class="search-container">
+      <input id="search" placeholder="e.g. B1402CVA-NK7110X">
+      <button id="clearBtn">×</button>
+    </div>
+    <div class="message" id="message">Type a name to search (e.g. B1402CVA-NK7110X)</div>
+
+    <div id="results-wrapper" style="display:none;">
+      <!-- Name Section -->
+      <div class="section">
+        <h2>Name</h2>
+        <div class="line"><span class="label">Product Name</span><span class="value" id="line-product"></span></div>
+        <div class="line"><span class="label">Marketing name</span><span class="value" id="line-marketing"></span></div>
+        <div class="line"><span class="label">Title</span><span class="value" id="line-title"></span></div>
+      </div>
+
+      <!-- Info + Spec Section -->
+      <div class="section">
+        <h2>Information & Spec</h2>
+        <div class="note">Salin dan tempel konten di bawah ini langsung ke halaman deskripsi produk e-commerce Anda.</div>
+        <div id="info-spec"></div>
+      </div>
+
+      <!-- Materials Section -->
+      <div class="section">
+        <h2>Materials</h2>
+        <div class="note">1. Klik tombol di bawah untuk mengakses cloud drive dan download file<br>2. Konten carousel harus mengikuti urutan penomoran file (1–9) di dalam folder<br>3. Konten carousel tanpa nomor bersifat opsional</div>
+        <button id="link-btn" class="button">Visit Link</button>
+        <div class="tutor-box"><img id="tutor-img" src="tutor.jpg" alt="Tutor"></div>
+      </div>
+    </div>
+
+    <button id="retryBtn" class="retryBtn" style="display:none;">🔍 Search Again</button>
+  </div>
+
+  <div id="modal" class="modal">
+    <span id="modal-close" class="modal-close">×</span>
+    <img id="modal-img">
+  </div>
+  <div id="toast" class="toast">Copied to clipboard!</div>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.3.2/papaparse.min.js"></script>
+  <script>
+    let data = [];
+    const input = document.getElementById('search');
+    const clearBtn = document.getElementById('clearBtn');
+    const retryBtn = document.getElementById('retryBtn');
+    const messageEl = document.getElementById('message');
+    const results = document.getElementById('results-wrapper');
+    const lineProduct = document.getElementById('line-product');
+    const lineMarketing = document.getElementById('line-marketing');
+    const lineTitle = document.getElementById('line-title');
+    const infoSpec = document.getElementById('info-spec');
+    const linkBtn = document.getElementById('link-btn');
+    const tutorImg = document.getElementById('tutor-img');
+    const modal = document.getElementById('modal');
+    const modalImg = document.getElementById('modal-img');
+    const modalClose = document.getElementById('modal-close');
+    const toast = document.getElementById('toast');
+
+    // Utility to replace empty or '0' values
+    function formatValue(val) {
+      if (!val || val.trim() === '' || val.trim() === '0') return 'No Available';
+      return val;
+    }
+
+    messageEl.textContent = 'Loading data, please wait...';
+    input.disabled = true;
+    Papa.parse('A+ Content Source(ForWeb).csv', {
+      download: true,
+      header: true,
+      skipEmptyLines: true,
+      complete: ({ data: d }) => {
+        data = d.map(row => { delete row['Part Number']; return row; });
+        input.disabled = false;
+        messageEl.textContent = 'Type a name to search (e.g. B1402CVA-NK7110X)';
+        input.addEventListener('input', onSearch);
+      }
+    });
+
+    function onSearch() {
+      const term = input.value.trim().toLowerCase();
+      clearBtn.style.display = term ? 'block' : 'none';
+      if (!term) return reset();
+      const row = data.find(r => (r['Product Name'] || '').toLowerCase().includes(term));
+      if (!row) {
+        messageEl.textContent = 'No product found';
+        results.style.display = 'none';
+        retryBtn.style.display = 'block';
+        return;
+      }
+      // Populate Name
+      lineProduct.textContent = formatValue(row['Product Name']);
+      lineMarketing.textContent = formatValue(row['Marketing name']);
+      lineTitle.textContent = formatValue(row['Title']);
+
+      // Build Spec HTML
+      let html = '<button class="copy-btn" id="copyBtn">Copy All</button>';
+      html += `<div class="line">${formatValue(row['Tagline'])}<br><br></div>`;
+      (row['KSP'] || '').split(/\r?\n/).forEach(l => html += `<div class="line">${formatValue(l)}</div>`);
+      html += '<br>';
+      const keys = ['CPU','GPU','OS','Office','Panel Size','Resolution','Brightness','RAM','SSD','Weight (with Battery)','Size','Battery','Power Supply'];
+      keys.forEach(k => html += `<div class="line">${k}: ${formatValue(row[k])}</div>`);
+      ['Include in the box','IO Port','Expansion Slot','Security'].forEach(f => {
+        html += `<div class="line">${f}:</div>`;
+        (row[f] || '').split(/\r?\n/).forEach(i => html += `<div class="line">${formatValue(i)}</div>`);
+      });
+      infoSpec.innerHTML = html;
+
+      // Copy All
+      document.getElementById('copyBtn').onclick = () => {
+        let text = [];
+        text.push(formatValue(row['Tagline'])); text.push('');
+        (row['KSP']||'').split(/\r?\n/).forEach(l => text.push(formatValue(l)));
+        text.push('');
+        keys.forEach(k => text.push(`${k}: ${formatValue(row[k])}`));
+        ['Include in the box','IO Port','Expansion Slot','Security'].forEach(f => {
+          text.push(`${f}:`);
+          (row[f]||'').split(/\r?\n/).forEach(i => text.push(formatValue(i)));
+        });
+        navigator.clipboard.writeText(text.join('\n')).then(() => {
+          toast.textContent = 'Copied to clipboard!'; toast.classList.add('show'); setTimeout(() => toast.classList.remove('show'),2000);
+        });
+      };
+
+      // Link
+      linkBtn.onclick = () => {
+        const url = row['Link'];
+        if (url && url.trim() !== '' && url !== '0') window.open(url, '_blank');
+        else alert('Coming Soon');
+      };
+
+      // Show results
+      messageEl.style.display = 'none';
+      results.style.display = 'block';
+      retryBtn.style.display = 'block';
+    }
+
+    function reset() {
+      input.value = '';
+      results.style.display = 'none';
+      retryBtn.style.display = 'none';
+      messageEl.textContent = 'Type a name to search (e.g. B1402CVA-NK7110X)';
+      messageEl.style.display = 'block';
+    }
+
+    clearBtn.addEventListener('click', reset);
+    retryBtn.addEventListener('click', reset);
+    tutorImg.addEventListener('click', () => {
+      modalImg.src = tutorImg.src;
+      modal.style.display = 'flex';
+    });
+    modalClose.addEventListener('click', () => { modal.style.display = 'none'; });
+    modal.addEventListener('click', e => { if (e.target === modal) modal.style.display = 'none'; });
+
+    reset();
+  </script>
+</body>
+</html>

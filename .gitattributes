@@ -1,0 +1,15 @@
+# Source files are normalised to LF in the repository and checked out as LF, so the same file
+# looks the same on every machine and in CI.
+* text=auto eol=lf
+
+# The published CSV is the byte-exact baseline that `check:forweb` compares against. It mixes
+# CRLF between records with bare LF inside cells, on purpose — that is what Excel wrote and what
+# the live site serves. Git must not touch a byte of it.
+*.csv -text
+
+# Binary assets, likewise left alone.
+*.png binary
+*.jpg binary
+*.jpeg binary
+*.xlsx binary
+*.xls binary

@@ -1,0 +1,10 @@
+{
+  "mainRepo": "E:\\DEVELOPMENT\\asus-aplus-2-0",
+  "syncedAt": "2026-09-15T08:19:46.580Z",
+  "files": {
+    "src/config/pmDatasheetLayout.ts": "c9c39f9cd42316fb68accbb1e393b9f2df34bee8bc4987441d017a4fd499a7b0",
+    "src/config/specSchema.ts": "169bc22ae699ac064bcd56ff318f9658d2b8073ad16d8d5ca82ea7a31525e71b",
+    "src/utils/specSource.ts": "1f1cbd303a81e8808790b5516a745e1522efb62067183c1e96ccc290a9549dd8",
+    "src/utils/pmDatasheetImport.ts": "fc14ea011477cca1ff9a0852411b7c5adfb11af20b4d35d7179cb4684b10da9a"
+  }
+}

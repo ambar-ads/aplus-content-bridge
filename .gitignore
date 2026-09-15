@@ -1,0 +1,20 @@
+node_modules
+dist
+*.local
+.DS_Store
+
+# Input workbook ASUS — internal, jangan di-commit
+assets/*.xlsx
+assets/*.xls
+
+# CSV hasil generate untuk uji coba lokal
+legacy-site/*.csv
+
+# artefak build TypeScript
+*.tsbuildinfo
+
+# file Excel master hasil generate — tim marketing memegang salinannya sendiri
+data/*.xlsx
+
+# Analisa lengkap sistem lama — catatan internal, tidak ikut ke repo
+ANALISA-INTERNAL.md

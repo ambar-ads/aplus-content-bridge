@@ -1,0 +1,38 @@
+{
+  "name": "asus-aplus-legacy-bridge",
+  "private": true,
+  "version": "0.1.0",
+  "type": "module",
+  "description": "Menjembatani katalog APLUS 2.0 ke situs A+ Content lama (ASUS-commercial/AplusContent)",
+  "scripts": {
+    "dev": "vite",
+    "build": "tsc -b && vite build",
+    "preview": "vite preview",
+    "sync:vendor": "node scripts/syncVendor.mjs",
+    "check:vendor": "node scripts/syncVendor.mjs --check",
+    "seed:catalog": "node scripts/seedCatalog.mjs",
+    "check:forweb": "node scripts/checkForWeb.mjs",
+    "check": "npm run check:vendor && npm run check:forweb && npm run build:master && npm run dryrun",
+    "emit": "node scripts/emitCsv.mjs",
+    "check:derive": "node scripts/checkDerive.mjs",
+    "dev:legacy": "vite legacy-site --port 5181 --strictPort",
+    "dryrun": "node scripts/dryRun.mjs",
+    "build:master": "node scripts/buildMaster.mjs",
+    "patch:page": "node scripts/patchLegacyPage.mjs",
+    "build:demo": "npm run build && node scripts/buildDemo.mjs"
+  },
+  "dependencies": {
+    "exceljs": "^4.4.0",
+    "papaparse": "^5.4.1",
+    "react": "^19.2.0",
+    "react-dom": "^19.2.0"
+  },
+  "devDependencies": {
+    "@types/papaparse": "^5.3.14",
+    "@types/react": "^19.2.0",
+    "@types/react-dom": "^19.2.0",
+    "@vitejs/plugin-react-swc": "^4.2.0",
+    "typescript": "~5.9.3",
+    "vite": "^7.3.0"
+  }
+}
