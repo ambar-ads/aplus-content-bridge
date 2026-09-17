@@ -16,6 +16,7 @@ import {
   DELIBERATE_FIXES,
 } from './lib/deriveForWeb';
 import { buildCatalogFromRows, mergePriceList, catalogToRows } from './lib/catalogStore';
+import { draftKsp, draftableRows } from './lib/buildKsp';
 import { assertXlsx, XlsxError } from './lib/xlsxGuard';
 import { loadEdits, saveEdits, applyEdits, setField, setFields } from './lib/edits';
 import { normalizeLabel } from './vendor/pmCell';
@@ -24,6 +25,33 @@ import type { IncomingModel, MergeReport } from './lib/catalogStore';
 import type { PriceListResult } from './lib/priceListImport';
 import type { MasterReadResult } from './lib/masterWorkbook';
 import type { ForWebKey, ForWebRow } from './lib/types';
+
+interface Busy {
+  kind: 'master' | 'priceList' | 'build';
+  message: string;
+}
+
+/**
+ * Let the browser paint before starting work that blocks the main thread.
+ *
+ * Reading a 20 MB price list is seconds of synchronous parsing. Without this the "reading…"
+ * state is set and the thread is seized before React ever draws it, so the page simply sits
+ * there — which is exactly the "did my file upload?" confusion this is meant to answer.
+ */
+const nextPaint = () =>
+  new Promise<void>((resolve) => {
+    let done = false;
+    const finish = () => {
+      if (done) return;
+      done = true;
+      resolve();
+    };
+    requestAnimationFrame(() => requestAnimationFrame(finish));
+    // A background tab never runs requestAnimationFrame, so waiting on it alone means an import
+    // started and then switched away from hangs on its first step and never comes back. The
+    // timeout is the floor: there is nothing to paint when nobody is looking anyway.
+    setTimeout(finish, 60);
+  });
 
 function saveFile(name: string, data: BlobPart, mime: string) {
   const blob = new Blob([data], { type: mime });
@@ -40,7 +68,7 @@ export default function App() {
   const [masterName, setMasterName] = useState('');
   const [priceList, setPriceList] = useState<PriceListResult | null>(null);
   const [priceListName, setPriceListName] = useState('');
-  const [busy, setBusy] = useState<string | null>(null);
+  const [busy, setBusy] = useState<Busy | null>(null);
   const [error, setError] = useState<string | null>(null);
 
   const [edits, setEdits] = useState<EditMap>(() => loadEdits());
@@ -157,22 +185,49 @@ export default function App() {
     else commitEdits(next);
   }
 
+  /**
+   * Fill in the KSP cells that are empty, and only those.
+   *
+   * What it writes is a draft built from the product's own spec columns, in the published
+   * three-bullet shape — a starting point for the PM, not finished marketing copy. Rows that
+   * already have a KSP are never touched; to redo one, clear the cell first.
+   */
+  function draftEmptyKsp(rows: ForWebRow[]) {
+    const changes = draftableRows(rows).map((row) => ({
+      pn90: row.partNumber.trim(),
+      key: 'ksp' as ForWebKey,
+      value: draftKsp(row),
+    }));
+    editFields(changes);
+  }
+
   function discardAll() {
     if (draftEdits) setDraftEdits({});
     else commitEdits({});
   }
 
   async function readFile(file: File, kind: 'master' | 'priceList') {
-    setBusy(kind === 'master' ? 'Reading master file…' : 'Reading price list…');
     setError(null);
     try {
+      setBusy({ kind, message: 'Opening the file…' });
+      await nextPaint();
       const buf = await file.arrayBuffer();
+
+      setBusy({ kind, message: 'Checking the file…' });
+      await nextPaint();
       assertXlsx(buf, file.name);
+
+      setBusy({
+        kind,
+        message: kind === 'master' ? 'Reading the products…' : 'Reading the datasheets…',
+      });
+      await nextPaint();
+
       if (kind === 'master') {
-        setMaster(await readMasterWorkbook(buf));
+        setMaster(await readMasterWorkbook(buf, file.name));
         setMasterName(file.name);
       } else {
-        setPriceList(await readPriceList(buf));
+        setPriceList(await readPriceList(buf, file.name));
         setPriceListName(file.name);
       }
     } catch (e) {
@@ -187,7 +242,8 @@ export default function App() {
   }
 
   async function downloadMaster() {
-    setBusy('Building the Excel file…');
+    setBusy({ kind: 'build', message: 'Building the Excel file…' });
+    await nextPaint();
     try {
       const buffer = await buildMasterWorkbook({
         rows: committed.rows,
@@ -236,6 +292,7 @@ export default function App() {
           <FileDrop
             accept=".xlsx"
             fileName={masterName}
+            busy={busy?.kind === 'master' ? busy.message : null}
             onFile={(f) => readFile(f, 'master')}
             label={`Drop ${MASTER_FILENAME} here, or click to choose`}
           />
@@ -282,6 +339,7 @@ export default function App() {
           <FileDrop
             accept=".xlsx"
             fileName={priceListName}
+            busy={busy?.kind === 'priceList' ? busy.message : null}
             onFile={(f) => readFile(f, 'priceList')}
             label="Drop ABP Price List.xlsx here, or click to choose"
           />
@@ -374,6 +432,7 @@ export default function App() {
               onBulkChange={editFields}
               onRevertAll={discardAll}
               onSyncTitles={() => syncTitles(committed.rows)}
+              onDraftKsp={() => draftEmptyKsp(committed.rows)}
               onOpenWindow={openPopout}
             />
           )}
@@ -461,6 +520,7 @@ export default function App() {
               onBulkChange={editFields}
               onRevertAll={discardAll}
               onSyncTitles={() => syncTitles(shown.rows)}
+              onDraftKsp={() => draftEmptyKsp(shown.rows)}
               onSave={savePopout}
               onCancel={closePopout}
             />

@@ -3,6 +3,7 @@ import { DataGrid } from './DataGrid';
 import { EDITABLE_COLUMNS } from '../lib/edits';
 import { isBlankValue } from '../lib/legacyCsv';
 import { titleNeedsRetitle } from '../lib/deriveForWeb';
+import { draftableRows } from '../lib/buildKsp';
 import type { ColumnFilters, SelectionInfo, SortState } from './DataGrid';
 import type { FieldChange } from '../lib/edits';
 import type { ForWebKey, ForWebRow } from '../lib/types';
@@ -15,6 +16,7 @@ interface Props {
   onBulkChange: (changes: FieldChange[]) => void;
   onRevertAll: () => void;
   onSyncTitles: () => void;
+  onDraftKsp: () => void;
   /** Rendered inside the pop-out window, which owns the Save / Cancel pair. */
   inWindow?: boolean;
   onOpenWindow?: () => void;
@@ -53,6 +55,7 @@ export function ProductEditor({
   onBulkChange,
   onRevertAll,
   onSyncTitles,
+  onDraftKsp,
   inWindow = false,
   onOpenWindow,
   onSave,
@@ -79,6 +82,8 @@ export function ProductEditor({
     () => rows.filter((r) => titleNeedsRetitle(r.title, r.marketingName)).length,
     [rows],
   );
+
+  const draftableKsp = useMemo(() => draftableRows(rows).length, [rows]);
 
   const suggestions = useMemo(() => {
     const out: Partial<Record<SortKey, string[]>> = {};
@@ -221,6 +226,11 @@ export function ProductEditor({
                 }}
               >
                 Clear {activeFilterCount > 0 ? `${activeFilterCount} column filter${activeFilterCount === 1 ? '' : 's'}` : 'sort'}
+              </button>
+            )}
+            {draftableKsp > 0 && (
+              <button type="button" className="ghost small" onClick={onDraftKsp}>
+                Draft KSP for {draftableKsp} empty {draftableKsp === 1 ? 'product' : 'products'}
               </button>
             )}
             {outOfSyncTitles > 0 && (

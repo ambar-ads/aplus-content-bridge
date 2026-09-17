@@ -436,3 +436,21 @@ kbd {
   padding: 0 4px;
   color: var(--text);
 }
+
+/* ── Upload feedback ────────────────────────────────────────────── */
+
+.drop.busy { cursor: progress; border-style: solid; border-color: var(--accent); background: #f2f8fd; }
+.drop.busy .file { color: var(--accent); }
+
+.drop .tick {
+  display: inline-block;
+  color: var(--ok);
+  font-weight: 700;
+  margin-right: 7px;
+}
+
+/* The dark variant is for a spinner on a light background, where white would vanish. */
+.spinner.dark {
+  border-color: rgba(0, 114, 198, .25);
+  border-top-color: var(--accent);
+}

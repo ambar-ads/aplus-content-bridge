@@ -38,6 +38,9 @@ Monthly price list    ───┘        (in the browser)  └─►  ForWeb.cs
    of the products currently on the site is used, and you can download the starting file in step 5.
 2. **Price list** — only needed when there are new products this month. Specifications of existing
    products are never changed, and products missing from this month's list are never dropped.
+
+   Both upload boxes show a spinner and the stage they are on while the file is being read — a
+   20 MB price list takes a few seconds — and a tick with the filename once it is loaded.
 3. **Reconciliation** — what was added, who is still missing copy, which 90PNs have a problem.
 4. **Edit** — a spreadsheet-style grid. Sort and filter per column, select a block of cells, and
    paste a column straight out of Excel. Or open it in a separate window with Save / Cancel.
@@ -55,6 +58,12 @@ Monthly price list    ───┘        (in the browser)  └─►  ForWeb.cs
    Paste is positional: row three of the clipboard lands on row three of the selection. Copy a
    single cell and paste it over a block to give every row the same value — which is how a column
    of identical Links gets filled in one action.
+
+   **Draft KSP** fills empty KSP cells from the product's own specification columns — three
+   bullets in the published house style, built from panel, processor, memory, expansion and
+   ports. It is a correct starting point, not finished copy: it states what the machine has, not
+   who it is for. Cells that already hold a KSP are never touched, and every draft counts as an
+   edit, so *Discard all changes* undoes the lot.
 5. **Download** — save the Excel file over your own copy, and upload the CSV to the
    `AplusContent` repository, replacing the old one. The filename must match exactly.
 
