@@ -17,9 +17,9 @@ import {
 } from './lib/deriveForWeb';
 import { buildCatalogFromRows, mergePriceList, catalogToRows } from './lib/catalogStore';
 import { assertXlsx, XlsxError } from './lib/xlsxGuard';
-import { loadEdits, saveEdits, applyEdits, setField } from './lib/edits';
+import { loadEdits, saveEdits, applyEdits, setField, setFields } from './lib/edits';
 import { normalizeLabel } from './vendor/pmCell';
-import type { EditMap } from './lib/edits';
+import type { EditMap, FieldChange } from './lib/edits';
 import type { IncomingModel, MergeReport } from './lib/catalogStore';
 import type { PriceListResult } from './lib/priceListImport';
 import type { MasterReadResult } from './lib/masterWorkbook';
@@ -131,6 +131,14 @@ export default function App() {
 
   function editField(pn90: string, key: ForWebKey, value: string) {
     const next = setField(activeEdits, pn90, key, value);
+    if (draftEdits) setDraftEdits(next);
+    else commitEdits(next);
+  }
+
+  /** Pasting a column from Excel touches hundreds of cells; fold them into one update. */
+  function editFields(changes: FieldChange[]) {
+    if (!changes.length) return;
+    const next = setFields(activeEdits, changes);
     if (draftEdits) setDraftEdits(next);
     else commitEdits(next);
   }
@@ -363,6 +371,7 @@ export default function App() {
               changedByPn90={committed.changedByPn90}
               newPn90={base.newPn90}
               onChange={editField}
+              onBulkChange={editFields}
               onRevertAll={discardAll}
               onSyncTitles={() => syncTitles(committed.rows)}
               onOpenWindow={openPopout}
@@ -449,6 +458,7 @@ export default function App() {
               changedByPn90={shown.changedByPn90}
               newPn90={base.newPn90}
               onChange={editField}
+              onBulkChange={editFields}
               onRevertAll={discardAll}
               onSyncTitles={() => syncTitles(shown.rows)}
               onSave={savePopout}

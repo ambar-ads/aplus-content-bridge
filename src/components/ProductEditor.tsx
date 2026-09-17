@@ -3,7 +3,8 @@ import { DataGrid } from './DataGrid';
 import { EDITABLE_COLUMNS } from '../lib/edits';
 import { isBlankValue } from '../lib/legacyCsv';
 import { titleNeedsRetitle } from '../lib/deriveForWeb';
-import type { ColumnFilters, SortState } from './DataGrid';
+import type { ColumnFilters, SelectionInfo, SortState } from './DataGrid';
+import type { FieldChange } from '../lib/edits';
 import type { ForWebKey, ForWebRow } from '../lib/types';
 
 interface Props {
@@ -11,6 +12,7 @@ interface Props {
   changedByPn90: Record<string, ForWebKey[]>;
   newPn90: Set<string>;
   onChange: (pn90: string, key: ForWebKey, value: string) => void;
+  onBulkChange: (changes: FieldChange[]) => void;
   onRevertAll: () => void;
   onSyncTitles: () => void;
   /** Rendered inside the pop-out window, which owns the Save / Cancel pair. */
@@ -48,6 +50,7 @@ export function ProductEditor({
   changedByPn90,
   newPn90,
   onChange,
+  onBulkChange,
   onRevertAll,
   onSyncTitles,
   inWindow = false,
@@ -58,6 +61,7 @@ export function ProductEditor({
   const [quick, setQuick] = useState<FilterId>('all');
   const [query, setQuery] = useState('');
   const [sort, setSort] = useState<SortState | null>(null);
+  const [selection, setSelection] = useState<SelectionInfo | null>(null);
   const [columnFilters, setColumnFilters] = useState<ColumnFilters>({});
 
   const counts = useMemo(
@@ -241,13 +245,37 @@ export function ProductEditor({
         filters={columnFilters}
         suggestions={suggestions}
         onChange={onChange}
+        onBulkChange={onBulkChange}
+        onSelectionChange={setSelection}
         onSort={cycleSort}
         onFilter={(key, value) => setColumnFilters((prev) => ({ ...prev, [key]: value }))}
       />
 
+      <div className="grid-status">
+        <span>
+          Showing <strong>{visible.length}</strong> of {rows.length} products
+          {selection && (
+            <>
+              {' · '}
+              <strong>
+                {selection.rows} × {selection.columns}
+              </strong>{' '}
+              selected ({selection.cells.toLocaleString('en')} cells)
+            </>
+          )}
+        </span>
+        <span className="keys">
+          <kbd>Click</kbd> select · <kbd>drag</kbd> or <kbd>Shift</kbd>+click extend ·{' '}
+          <kbd>Ctrl</kbd>+<kbd>C</kbd>/<kbd>V</kbd> copy &amp; paste ·{' '}
+          <kbd>Ctrl</kbd>+<kbd>D</kbd> fill down · <kbd>Del</kbd> clear ·{' '}
+          <kbd>Enter</kbd> or double-click to edit
+        </span>
+      </div>
+
       <p className="editor-foot">
-        Showing {visible.length} of {rows.length} products. Click a column heading to sort, type in
-        the row beneath it to filter, and click any cell to edit it. Escape cancels a cell.
+        Paste a column straight from Excel: select the first cell, press <kbd>Ctrl</kbd>+
+        <kbd>V</kbd>, and the block fills downward from there. Copy one cell and paste it over a
+        selection to give every row the same value.
         {outOfSyncTitles > 0 && (
           <>
             {' '}

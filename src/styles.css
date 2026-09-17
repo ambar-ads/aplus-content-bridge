@@ -397,3 +397,42 @@ table.grid thead .filter-row .sticky-col { background: #eef3f8; }
   overflow: hidden;
 }
 .editor-overlay .editor-shell.in-window { height: 100vh; }
+
+/* ── Range selection ────────────────────────────────────────────── */
+
+.grid-scroll:focus-visible { outline: 2px solid var(--accent); outline-offset: -2px; }
+
+table.grid td.cell { cursor: cell; user-select: none; }
+
+table.grid td.cell.selected { background: #dceafa; }
+table.grid td.cell.selected.changed { background: #cfe2f7; }
+table.grid td.cell.selected.flag { background: #e8e6d6; }
+
+/* The anchor is the cell the keyboard acts on, so it needs to stand out inside the block. */
+table.grid td.cell.anchor { box-shadow: inset 0 0 0 2px var(--accent); background: #cfe4f9; }
+
+table.grid .sticky-col.in-selection { background: #e4edf7; }
+table.grid tbody tr:hover .sticky-col.in-selection { background: #dde9f5; }
+
+.grid-status {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 14px;
+  flex-wrap: wrap;
+  margin-top: 8px;
+  font-size: 12.5px;
+  color: var(--muted);
+}
+.grid-status .keys { color: var(--muted); }
+
+kbd {
+  font-family: ui-monospace, 'Cascadia Mono', Consolas, monospace;
+  font-size: 11px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-bottom-width: 2px;
+  border-radius: 3px;
+  padding: 0 4px;
+  color: var(--text);
+}

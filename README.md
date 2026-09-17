@@ -39,8 +39,22 @@ Monthly price list    ───┘        (in the browser)  └─►  ForWeb.cs
 2. **Price list** — only needed when there are new products this month. Specifications of existing
    products are never changed, and products missing from this month's list are never dropped.
 3. **Reconciliation** — what was added, who is still missing copy, which 90PNs have a problem.
-4. **Edit** — a spreadsheet-style grid: sort and filter per column, edit any cell in place, or open
-   it in a separate window with Save / Cancel.
+4. **Edit** — a spreadsheet-style grid. Sort and filter per column, select a block of cells, and
+   paste a column straight out of Excel. Or open it in a separate window with Save / Cancel.
+
+   | | |
+   |---|---|
+   | Click, drag, Shift+click | select a cell or a block |
+   | Arrows, Shift+arrows | move or extend the selection |
+   | Ctrl+C / Ctrl+V | copy and paste, tab-separated like Excel |
+   | Ctrl+D | fill the top row of the selection downward |
+   | Ctrl+A | select everything |
+   | Delete | clear the selected cells |
+   | Enter, F2, double-click, or just typing | edit a cell |
+
+   Paste is positional: row three of the clipboard lands on row three of the selection. Copy a
+   single cell and paste it over a block to give every row the same value — which is how a column
+   of identical Links gets filled in one action.
 5. **Download** — save the Excel file over your own copy, and upload the CSV to the
    `AplusContent` repository, replacing the old one. The filename must match exactly.
 

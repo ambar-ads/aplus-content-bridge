@@ -110,6 +110,28 @@ export function setField(
   return { ...edits, [pn90]: { ...(edits[pn90] ?? {}), [key]: value } };
 }
 
+export interface FieldChange {
+  pn90: string;
+  key: ForWebKey;
+  value: string;
+}
+
+/**
+ * Apply many changes at once.
+ *
+ * Pasting a column from Excel can touch several hundred cells. Folding them into one new overlay
+ * keeps that a single render rather than one per cell, and keeps the whole paste undoable as one
+ * step rather than leaving it half-applied if something throws part-way.
+ */
+export function setFields(edits: EditMap, changes: FieldChange[]): EditMap {
+  if (!changes.length) return edits;
+  const next: EditMap = { ...edits };
+  for (const { pn90, key, value } of changes) {
+    next[pn90] = { ...(next[pn90] ?? {}), [key]: value };
+  }
+  return next;
+}
+
 export function revertProduct(edits: EditMap, pn90: string): EditMap {
   const next = { ...edits };
   delete next[pn90];
