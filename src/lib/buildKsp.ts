@@ -12,9 +12,10 @@
  *
  * Every value is checked before it is used. The published data is partly scrambled — 21 products
  * carry expansion-slot text in the Security column, 16 carry AC-adapter text there, 21 have
- * "Anti-glare display" where Brightness should be. Repeating that into a selling point would be
- * worse than leaving the cell empty, so a value that does not look like its own field is skipped
- * and the bullet is built from what remains.
+ * "Anti-glare display" where Brightness should be, some carry memory text in GPU, and 73 carry
+ * Excel error text such as "#VALUE!" in an ordinary cell. Repeating any of that into a selling
+ * point would be worse than leaving the cell empty, so a value that does not look like its own
+ * field is skipped and the bullet is built from what remains.
  */
 import { isBlankValue } from './legacyCsv';
 import type { ForWebRow } from './types';
@@ -49,14 +50,39 @@ const listPhrase = (items: string[]) =>
     ? (items[0] ?? '')
     : items.slice(0, -1).join(', ') + ' and ' + items[items.length - 1];
 
+/**
+ * Excel error text that the published data carries in ordinary cells.
+ *
+ * 73 of the 392 live products have at least one — the workbook's formulas failed against a raw
+ * row and the error was exported as if it were a value. A draft that opens "#VALUE! with 8GB
+ * DDR4" is worse than an empty cell, so these never count as a value anywhere.
+ */
+const EXCEL_ERROR = /#(VALUE|REF|NAME|NUM|NULL|DIV\/0|N\/A)[!?]?/i;
+
 const usable = (v: string | undefined, keepLines = false) => {
   const raw = String(v ?? '');
   const s = keepLines ? cleanLines(raw) : clean(raw);
-  return !s || isBlankValue(s) || /^n\/?a$/i.test(s) ? '' : s;
+  if (!s || isBlankValue(s) || /^n\/?a$/i.test(s) || EXCEL_ERROR.test(s)) return '';
+  return s;
 };
+
+/** Memory and storage wording, used to spot a value that has landed in the wrong column. */
+const MEMORY_WORDS = /(DIMM|DDR\d|LPDDR|eMMC|\bSSD\b|\bHDD\b|M\.2|NVMe)/i;
+
+/** A value that says what it is, not only how big it is: "512GB PCIe SSD" against "64GB". */
+const DESCRIBES_ITSELF = /(SSD|HDD|NVMe|PCIe|SATA|eMMC|DDR|DIMM|M\.2)/i;
 
 /** Each field is only trusted when its value actually looks like that field. */
 const looksLike = {
+  cpu: (v: string) =>
+    /(core|ryzen|athlon|celeron|pentium|xeon|snapdragon|ultra|\bi[3579]-|\bR[357]\b|processor|GHz)/i.test(
+      v,
+    ),
+  // Several products carry memory text in the GPU column, which then reads as "with 8GB DDR4
+  // U-DIMM" — true of the machine, but not a graphics card.
+  gpu: (v: string) =>
+    /(rtx|gtx|geforce|quadro|radeon|vega|iris|arc|nvidia|graphics)/i.test(v) &&
+    !MEMORY_WORDS.test(v),
   panelSize: (v: string) => /\d/.test(v),
   resolution: (v: string) => /\d{3,}|FHD|WUXGA|WQXGA|QHD|UHD|2\.?5K|3K|4K/i.test(v),
   brightness: (v: string) => /\d+\s*nits/i.test(v),
@@ -137,15 +163,22 @@ function displayBullet(row: ForWebRow): string {
 }
 
 function performanceBullet(row: ForWebRow): string {
-  const cpu = field(row, 'cpu');
-  const gpu = stripParens(field(row, 'gpu'));
+  const cpu = field(row, 'cpu', looksLike.cpu);
+  const gpu = stripParens(field(row, 'gpu', looksLike.gpu));
   const ram = field(row, 'ram', looksLike.memory);
   const ssd = stripParens(field(row, 'ssd', looksLike.storage));
   if (!cpu && !ram && !ssd) return '';
 
   const core = [cpu, gpu && `with ${gpu}`].filter(Boolean).join(' ');
   const tail = [ram && `${ram} memory`, ssd].filter(Boolean).join(' and ');
-  return trimTo(clean([core, tail].filter(Boolean).join(', ')));
+  if (core) return trimTo(clean([core, tail].filter(Boolean).join(', ')));
+
+  // No processor survived the checks, so the bullet has to stand on the numbers alone. That is
+  // fine for "512GB 2280 PCIe G4 SSD" and useless for "64GB": one names what it is, the other is
+  // a size with nothing attached. 90PF0461-M00C20 has every spec column shifted by one and that
+  // fragment is all that is left of it.
+  if (!ram && !DESCRIBES_ITSELF.test(ssd)) return '';
+  return trimTo(clean(tail));
 }
 
 function expandabilityBullet(row: ForWebRow): string {

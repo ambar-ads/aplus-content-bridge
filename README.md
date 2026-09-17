@@ -78,6 +78,7 @@ Monthly price list    ───┘        (in the browser)  └─►  ForWeb.cs
 | `npm run build:demo` | Build the published bundle |
 | `npm run check` | Run every check |
 | `npm run check:forweb` | **The safety gate** — the generated CSV must match the published one byte for byte |
+| `npm run check:ksp` | Drafted KSP must never repeat error text or a value from the wrong column |
 | `npm run build:master` | Generate `A+ Content Master.xlsx` and verify nothing was lost |
 | `npm run dryrun` | Run the whole monthly flow from the terminal |
 | `npm run emit` | Write the CSV into `legacy-site/` to try before uploading |
